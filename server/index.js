@@ -32,7 +32,7 @@ async function run() {
     const bookingsCollection = client.db('aircncDb').collection('bookings')
 
 
-    //save user email and role in DB
+    //Save user email and role in DB
     app.put('users/:email', async(req, res) =>{
         const email = req.params.email
         const user = req.body 
@@ -43,6 +43,7 @@ async function run() {
         }
         const result = await usersCollection.updateOne(query, updateDoc, options)
     })
+
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
