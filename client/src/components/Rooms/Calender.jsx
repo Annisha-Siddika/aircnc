@@ -1,6 +1,9 @@
 import { DateRange } from 'react-date-range'
 
-const DatePicker = ({ value, handleSelect }) => {
+import 'react-date-range/dist/styles.css'
+import 'react-date-range/dist/theme/default.css'
+
+const DatePicker = ({value, handleSelect}) => {
   return (
     <DateRange
       rangeColors={['#F43F5E']}
