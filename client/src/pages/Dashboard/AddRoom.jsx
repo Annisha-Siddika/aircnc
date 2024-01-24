@@ -3,8 +3,10 @@ import AddRoomForm from '../../components/Form/AddRoomForm';
 import { AuthContext } from '../../providers/AuthProvider';
 import { addRoom } from '../../api/room';
 import { imageUpload } from '../../api/utils';
+import { useNavigate } from 'react-router-dom';
 
 const AddRoom = () => {
+    const navigate = useNavigate()
     const {user}= useContext(AuthContext);
     const [dates, setDates] = useState({
         startDate: new Date(),
@@ -30,6 +32,7 @@ const AddRoom = () => {
         const category = event.target.category.value 
 
         const image = event.target.image.files[0]
+        setUploadButtonText('Uploading...')
         // upload image 
         imageUpload(image)
         .then(data => {
@@ -51,18 +54,23 @@ const AddRoom = () => {
                 },
                 category,            
             }
-            // Post room data to server
-            addRoom(roomData)
-            .then(data =>{
-                console.log(data)
-            })
-            .catch(err => console.log(err.message))
-            setLoading(false)            
-        })
-        .catch(err =>{
-            console.log(err.message)
+        // post room data to server
+        addRoom(roomData)
+          .then(data => {
+            console.log(data)
+            setUploadButtonText('Uploaded!')
             setLoading(false)
-        })
+            toast.success('Room Added!')
+            navigate('/dashboard/my-listings')
+          })
+          .catch(err => console.log(err))
+
+        setLoading(false)
+      })
+      .catch(err => {
+        console.log(err.message)
+        setLoading(false)
+      })
     }
 
     const handleImageChange = image =>{

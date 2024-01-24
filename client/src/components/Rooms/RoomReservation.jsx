@@ -3,9 +3,12 @@ import Calender from './Calender';
 import Button from '../Button/Button';
 import { AuthContext } from '../../providers/AuthProvider';
 import BookingModal from '../Modal/BookingModal';
-import { formatDistance, subDays } from "date-fns";
-
+import { formatDistance } from "date-fns";
+import { saveBooking, updateStatus } from '../../api/bookings';
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom';
 const RoomReservation = ({roomData}) => {
+    const navigate = useNavigate()
     const { user, role } = useContext(AuthContext)
     const [isOpen, setIsOpen] = useState(false)
     const totalPrice = parseFloat(
@@ -25,15 +28,29 @@ const RoomReservation = ({roomData}) => {
         price: totalPrice,
         to: value.endDate,
         from: value.startDate,
+        roomId: roomData._id,
+        image: roomData.image,
     })
     
     const handleSelect = () =>{
         setValue({...value})
     }
 
-    const modalHandler = ()=>{
-        console.log(bookingInfo)
-    }
+    const modalHandler = () => {
+        saveBooking(bookingInfo)
+          .then(data => {
+        //     console.log(data)
+            updateStatus(roomData._id, true)
+              .then(data => {
+                console.log(data)
+                toast.success('Booking Successful!')
+                navigate('/dashboard/my-bookings')
+                closeModal()
+              })
+              .catch(err => console.log(err))
+          })
+          .catch(err => console.log(err))
+      }
     const closeModal = ()=>{
         setIsOpen(false)
     }
@@ -49,7 +66,9 @@ const RoomReservation = ({roomData}) => {
             </div>
             <hr />
             <div className="p-4">
-                <Button onClick={() => setIsOpen(true)} disabled={roomData.host.email === user.email} label='Reserve'/>
+                <Button 
+                onClick={() => setIsOpen(true)} 
+                disabled={roomData.host.email === user.email || roomData.booked} label='Reserve'/>
             </div>
             <div className='p-4 flex flex-row items-center justify-between font-semibold text-lg'>
                 <div>Total</div>
