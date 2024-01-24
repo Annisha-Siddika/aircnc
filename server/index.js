@@ -45,7 +45,7 @@ async function run() {
       res.send(result);
     });
 
-    // Get user
+    // Get a user
 
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -69,12 +69,76 @@ async function run() {
       res.send(result);
     });
 
+    // Get a single room by email
+  app.get('/rooms/:email', async (req, res) => {
+    const email = req.params.email
+    const query = { 'host.email': email }
+    const result = await roomsCollection.find(query).toArray()
+
+    console.log(result)
+    res.send(result)
+  })
+
     //Get a single room
 
     app.get("/room/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await roomsCollection.findOne(query);
+      res.send(result);
+    });
+
+     // delete a room
+
+     app.delete('/rooms/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await roomsCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    //update room booking status 
+
+    app.patch('/rooms/status/:id', async (req, res) =>{
+      const id = req.params.id
+      const status = req.body.status 
+      const query = { _id: new ObjectId(id)}
+      const updateDoc = {
+        $set: {
+          booked: status,
+        },
+      }
+      const update = await roomsCollection.updateOne(query, updateDoc)
+      res.send(update)
+    })
+
+    // Get bookings for guest
+    app.get('/bookings', async (req, res) => {
+      const email = req.query.email
+
+      if (!email) {
+        res.send([])
+      }
+      const query = { 'guest.email': email }
+      const result = await bookingsCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // delete a booking
+
+    app.delete('/bookings/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await bookingsCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
+    // Save Booking data in database
+
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
       res.send(result);
     });
 
